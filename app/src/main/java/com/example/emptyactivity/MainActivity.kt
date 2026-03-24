@@ -6,12 +6,16 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.emptyactivity.ui.theme.EmptyActivityTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,67 +23,52 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             EmptyActivityTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    PreferencesUtilisateur(modifier = Modifier.padding(innerPadding))
-                }
+                EcranPrincipal()
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PreferencesUtilisateur(modifier: Modifier = Modifier) {
-    var notifications by remember { mutableStateOf(false) }
-    var newsletter by remember { mutableStateOf(false) }
-
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-
-        // Switch Notifications
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Activer notifications")
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Switch(
-                    checked = notifications,
-                    onCheckedChange = { notifications = it }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(if (notifications) "ON" else "OFF")
+fun EcranPrincipal() {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Tableau de bord") }
+            )
+        },
+        bottomBar = {
+            BottomAppBar {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    IconButton(onClick = { /* Action Home */ }) {
+                        Icon(Icons.Default.Home, contentDescription = "Home")
+                    }
+                    IconButton(onClick = { /* Action Profil */ }) {
+                        Icon(Icons.Default.Person, contentDescription = "Profil")
+                    }
+                }
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Checkbox Newsletter
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentAlignment = Alignment.Center
         ) {
-            Text("Recevoir newsletter")
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(
-                    checked = newsletter,
-                    onCheckedChange = { newsletter = it }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(if (newsletter) "Coché" else "Décoché")
-            }
+            Text("Bienvenue !")
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PreferencesPreview() {
+fun EcranPreview() {
     EmptyActivityTheme {
-        PreferencesUtilisateur()
+        EcranPrincipal()
     }
 }
