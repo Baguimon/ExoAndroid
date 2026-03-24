@@ -5,9 +5,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Card
-import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,7 +24,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             EmptyActivityTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ProfilSimple(modifier = Modifier.padding(innerPadding))
+                    MeteoRow(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
@@ -30,31 +32,27 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ProfilSimple(modifier: Modifier = Modifier) {
-    Card(
+fun MeteoRow(modifier: Modifier = Modifier) {
+    Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = "Emma")
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "27 ans")
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Designer")
-        }
+        Icon(
+            imageVector = Icons.Default.Info,
+            contentDescription = "Info"
+        )
+        Text(text = "24°C")
+        Text(text = "Ensoleillé")
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun ProfilPreview() {
+fun MeteoPreview() {
     EmptyActivityTheme {
-        ProfilSimple()
+        MeteoRow()
     }
 }
