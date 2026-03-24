@@ -5,17 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.emptyactivity.ui.theme.EmptyActivityTheme
-import androidx.compose.material3.ExperimentalMaterial3Api
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,52 +20,63 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             EmptyActivityTheme {
-                EcranPrincipal()
+                ListeTaches()
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+// Modèle de données
+data class Tache(val titre: String, val description: String)
+
 @Composable
-fun EcranPrincipal() {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Tableau de bord") }
-            )
-        },
-        bottomBar = {
-            BottomAppBar {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    IconButton(onClick = { /* Action Home */ }) {
-                        Icon(Icons.Default.Home, contentDescription = "Home")
-                    }
-                    IconButton(onClick = { /* Action Profil */ }) {
-                        Icon(Icons.Default.Person, contentDescription = "Profil")
-                    }
-                }
-            }
+fun ListeTaches() {
+    val taches = listOf(
+        Tache("Courses", "Acheter du lait et du pain"),
+        Tache("Sport", "Aller à la salle"),
+        Tache("Travail", "Finir le projet"),
+        Tache("Ménage", "Nettoyer la chambre"),
+        Tache("Lecture", "Lire 20 pages")
+    )
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        items(taches) { tache ->
+            CarteTache(tache)
         }
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.Center
+    }
+}
+
+@Composable
+fun CarteTache(tache: Tache) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 12.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
         ) {
-            Text("Bienvenue !")
+            Text(text = tache.titre)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = tache.description)
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(onClick = { /* Action terminé */ }) {
+                Text("Terminé")
+            }
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun EcranPreview() {
+fun ListeTachesPreview() {
     EmptyActivityTheme {
-        EcranPrincipal()
+        ListeTaches()
     }
 }
