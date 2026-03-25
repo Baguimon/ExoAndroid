@@ -4,79 +4,115 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.room.Room
 import com.example.emptyactivity.ui.theme.EmptyActivityTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val db = Room.databaseBuilder(
+            applicationContext,
+            AppDb::class.java,
+            "db"
+        ).build()
+
+        val dao = db.dao()
+
         setContent {
             EmptyActivityTheme {
-                ListeTaches()
+                TodoScreen(dao = dao)
             }
         }
     }
 }
 
-// Modèle de données
-data class Tache(val titre: String, val description: String)
+@OptIn(ExperimentalMaterial3Api::class)
+@androidx.compose.runtime.Composable
+fun TodoScreen(dao: TaskDao) {
+    val tasks by dao.getAll().collectAsState(initial = emptyList())
+    val scope = rememberCoroutineScope()
+    var text by remember { mutableStateOf("") }
 
-@Composable
-fun ListeTaches() {
-    val taches = listOf(
-        Tache("Courses", "Acheter du lait et du pain"),
-        Tache("Sport", "Aller à la salle"),
-        Tache("Travail", "Finir le projet"),
-        Tache("Ménage", "Nettoyer la chambre"),
-        Tache("Lecture", "Lire 20 pages")
-    )
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        items(taches) { tache ->
-            CarteTache(tache)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Ma Todo Room") }
+            )
         }
-    }
-}
-
-@Composable
-fun CarteTache(tache: Tache) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 12.dp)
-    ) {
+    ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
         ) {
-            Text(text = tache.titre)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = tache.description)
+            Row {
+                TextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    modifier = Modifier.weight(1f),
+                    placeholder = { Text("Faire...") }
+                )
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = {
+                        scope.launch {
+                            if (text.isNotBlank()) {
+                                dao.insert(Task(title = text))
+                                text = ""
+                            }
+                        }
+                    },
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    Text("OK")
+                }
+            }
 
-            Button(onClick = { /* Action terminé */ }) {
-                Text("Terminé")
+            LazyColumn(
+                modifier = Modifier.padding(top = 16.dp)
+            ) {
+                items(tasks) { task ->
+                    TextButton(
+                        onClick = {
+                            scope.launch {
+                                dao.delete(task)
+                            }
+                        }
+                    ) {
+                        Text(
+                            text = "${task.title} (Supprimer)",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ListeTachesPreview() {
-    EmptyActivityTheme {
-        ListeTaches()
     }
 }
